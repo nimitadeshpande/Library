@@ -1,5 +1,8 @@
 .classpath
 .project
 /dist/application
+/dist/application/*.class
 build.fxbuild
 .settings
+*.class
+/dist/
