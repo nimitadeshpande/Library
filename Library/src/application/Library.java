@@ -346,8 +346,8 @@ public class Library extends Application {
 							addButton.getStyleClass().addAll("buttonSmall");
 							Button exitButton = new Button("Cancel");
 							exitButton.getStyleClass().addAll("buttonSmall");
-							Button deleteButton = new Button("Delete");
-							deleteButton.getStyleClass().addAll("buttonSmall");
+							Button deleteButton = new Button("Delete Selected Student");
+							deleteButton.getStyleClass().addAll("buttonXLarge");
 
 							// Label err = new Label();
 
@@ -356,6 +356,8 @@ public class Library extends Application {
 							vbox.setPadding(new Insets(90, 0, 0, 90));
 							HBox hb = new HBox();
 							hb.setSpacing(3);
+							HBox hb1 = new HBox();
+							hb1.setSpacing(3);
 
 							exitButton.setOnAction(new EventHandler<ActionEvent>() {
 								@Override
@@ -407,37 +409,56 @@ public class Library extends Application {
 							deleteButton.setOnAction(new EventHandler<ActionEvent>() {
 
 								public void handle(ActionEvent e) {
-									Label newLine = new Label("");
-									Label delete = new Label("Enter ID of the record you wish to delete:\t");
-									TextField deleteId = new TextField();
-									deleteId.setPromptText("ID to be deleted");
-									HBox hb = new HBox();
-									hb.setSpacing(3);
-									Button deleteBorrower = new Button("Delete Student");
-									deleteBorrower.getStyleClass().addAll("buttonLarge");
-									hb.getChildren().addAll(delete, deleteId, deleteBorrower);
-									vbox.getChildren().addAll(newLine, hb);
-
-									deleteBorrower.setOnAction(new EventHandler<ActionEvent>() {
-
-										public void handle(ActionEvent e) {
-											for (int i = 0; i < students.size(); i++) {
-												if (students.get(i).getId().equals(deleteId.getText())) {
-													students.remove(i);
-												}
-											}
-
-											for (int i = 0; i < books.size(); i++) {
-												if (books.get(i).getCheckedOutId().equals(deleteId.getText())) {
-													books.get(i).checkedOutBy = null;
-													books.get(i).checkedOutDate = null;
-													books.get(i).checkedOutId = null;
-													books.get(i).returnDate = null;
-													books.get(i).borrowerName = null;
-												}
-											}
+									Student delStudent = (Student) studentTable.getSelectionModel().getSelectedItem();
+									studentTable.getItems().remove(delStudent);
+									
+									for (int i = 0; i < students.size(); i++) {
+										if (students.get(i).getId().equals(delStudent.getId())) {
+											students.remove(i);
 										}
-									});
+									}
+
+									for (int i = 0; i < books.size(); i++) {
+										if (books.get(i).getCheckedOutId().equals(delStudent.getId())) {
+											books.get(i).checkedOutBy = null;
+											books.get(i).checkedOutDate = null;
+											books.get(i).checkedOutId = null;
+											books.get(i).returnDate = null;
+											books.get(i).borrowerName = null;
+										}
+									}
+//									Label newLine = new Label("");
+//									Label delete = new Label("Enter ID of the record you wish to delete:\t");
+//									TextField deleteId = new TextField();
+//									deleteId.setPromptText("ID to be deleted");
+//									HBox hb = new HBox();
+//									hb.setSpacing(3);
+//									Button deleteBorrower = new Button("Delete Student");
+//									deleteBorrower.getStyleClass().addAll("buttonLarge");
+//									hb.getChildren().addAll(delete, deleteId, deleteBorrower);
+//									vbox.getChildren().addAll(newLine, hb);
+//
+//									deleteBorrower.setOnAction(new EventHandler<ActionEvent>() {
+//
+//										public void handle(ActionEvent e) {
+//											for (int i = 0; i < students.size(); i++) {
+//												if (students.get(i).getId().equals(deleteId.getText())) {
+//													students.remove(i);
+//												}
+//											}
+//
+//											for (int i = 0; i < books.size(); i++) {
+//												if (books.get(i).getCheckedOutId().equals(deleteId.getText())) {
+//													books.get(i).checkedOutBy = null;
+//													books.get(i).checkedOutDate = null;
+//													books.get(i).checkedOutId = null;
+//													books.get(i).returnDate = null;
+//													books.get(i).borrowerName = null;
+//												}
+//											}
+//										}
+//									}
+//									);
 								}
 
 							});
@@ -445,8 +466,9 @@ public class Library extends Application {
 							firstNameField.clear();
 							lastNameField.clear();
 
-							hb.getChildren().addAll(firstNameField, lastNameField, addButton, deleteButton, exitButton);
-							vbox.getChildren().addAll(label, studentTable, err, hb);
+							hb.getChildren().addAll(firstNameField, lastNameField, addButton);
+							hb1.getChildren().addAll(deleteButton, exitButton);
+							vbox.getChildren().addAll(label, studentTable, err, hb, hb1);
 							editStudGrid.getChildren().addAll(vbox);
 							((Group) scene.getRoot()).getChildren().addAll(editStudGrid);
 
@@ -1399,7 +1421,7 @@ public class Library extends Application {
 						for (Student student : students) {
 							if (student.id.get().equals(borrowerIdField.getText())) {
 								System.out.println(student.id.get() + " has " + student.bookIds.size() +" books.");
-								if (student.bookIds.size() < student.BOOK_LIMIT) {
+								if (student.bookIds.size() <= student.BOOK_LIMIT) {
 									int index = student.bookIds.size();
 									System.out.println("adding book to index: " + index);
 									student.bookIds.add(index, new SimpleStringProperty(bookIdField.getText()));
@@ -1423,7 +1445,7 @@ public class Library extends Application {
 					else if (borrowerType.equals("Teacher")) {
 						for (Teacher teacher : teachers) {
 							if (teacher.id.get().equals(borrowerIdField.getText())) {
-								if (teacher.bookIds.size() < teacher.BOOK_LIMIT) {
+								if (teacher.bookIds.size() <= teacher.BOOK_LIMIT) {
 									int index = teacher.bookIds.size();
 									teacher.bookIds.add(index, new SimpleStringProperty(bookIdField.getText()));
 									book.isCheckedOut = true;

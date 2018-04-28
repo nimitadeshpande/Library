@@ -9,6 +9,13 @@
     -fx-font-family: 'Lucida Sans';
     -fx-font-weight: bold;
 }
+.buttonXLarge {
+    -fx-background-color: #ffff33;
+    -fx-border-color: #008000;
+    -fx-pref-width: 205;
+    -fx-font-family: 'Lucida Sans';
+    -fx-font-weight: bold;
+}
 .buttonSmall {
     -fx-background-color: #ffff33;
     -fx-border-color: #008000;

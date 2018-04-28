@@ -5,4 +5,7 @@
 build.fxbuild
 .settings
 *.class
+
+
 /dist/
+/bin/
