@@ -45,15 +45,14 @@ public class LibraryFile {
 			while (scan.hasNextLine()) {
 				String s = scan.nextLine();
 				String[] data = s.split("\\|", 6);
-				Student.BOOK_LIMIT = Integer.parseInt(data[0]);
-				Student.DAY_LIMIT = Integer.parseInt(data[1]);
-				Student.FINE_PER_DAY = Double.parseDouble(data[2]);
-				Teacher.BOOK_LIMIT = Integer.parseInt(data[3]);
-				Teacher.DAY_LIMIT = Integer.parseInt(data[4]);
-				Teacher.FINE_PER_DAY = Double.parseDouble(data[5]);
+				Student.bookLimit = Integer.parseInt(data[0]);
+				Student.dayLimit = Integer.parseInt(data[1]);
+				Student.finePerDay = Double.parseDouble(data[2]);
+				Teacher.bookLimit = Integer.parseInt(data[3]);
+				Teacher.dayLimit = Integer.parseInt(data[4]);
+				Teacher.finePerDay = Double.parseDouble(data[5]);
 			}
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	

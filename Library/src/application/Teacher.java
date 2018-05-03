@@ -6,8 +6,9 @@ import java.util.Date;
 import javafx.beans.property.SimpleStringProperty;
 
 public class Teacher extends Borrower {
-	public static int DAY_LIMIT, BOOK_LIMIT;
-	public static double FINE_PER_DAY;
+	
+	protected static int bookLimit, dayLimit;
+	protected static double finePerDay;
 	
 	public Teacher(String id, String lastName, String firstName) {	
 		super();

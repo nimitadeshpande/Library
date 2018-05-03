@@ -29,7 +29,7 @@ public class Borrower {
 	protected ArrayList<LocalDate> borrowedDates;
 	protected ArrayList<LocalDate> returnDates;
 //______________________________________________________________________________________________________
-	
+
 	/* default constructor */
 	public Borrower() {
 		

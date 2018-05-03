@@ -8,9 +8,9 @@ import javafx.collections.ObservableList;
 import java.time.LocalDate;
 import java.util.*;
 public class Student extends Borrower {
-
-	public static int DAY_LIMIT, BOOK_LIMIT;
-	public static double FINE_PER_DAY;
+	
+	protected static int bookLimit, dayLimit;
+	protected static double finePerDay;	
 	
 	public Student(String id, String lastName, String firstName) {
 		super();

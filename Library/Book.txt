@@ -1,13 +1,13 @@
-10000|Harry Potter and the Sorcerer's Stone|J.K. Rowling|true|Teacher|5000|Lorie Moore|Feb-13-2018|Feb-20-2018
-10002|Harry Potter and the Prisoner of Azkaban|J.K. Rowling|true|Teacher|5000|Lorie Moore|Feb-13-2018|Feb-20-2018
-10003|A Brief History of Time|Stephen Hawking|true|Teacher|5000|Lorie Moore|Feb-13-2018|Feb-20-2018
-10004|Leave it to Psmith|P.G. Wodehouse|false|null|null|null|null|null
-10005|Emma|Jane Austen|true|Student|1005|Neha Deshpande|Feb-13-2018|Feb-18-2018
+10000|Harry Potter and the Sorcerer's Stone|J.K. Rowling|true|Teacher|5000|Lorie Moore|Apr-21-2018|Apr-28-2018
+10002|Harry Potter and the Prisoner of Azkaban|J.K. Rowling|true|Teacher|5000|Lorie Moore|Apr-21-2018|Apr-28-2018
+10003|A Brief History of Time|Stephen Hawking|true|Teacher|5000|Lorie Moore|Apr-21-2018|Apr-28-2018
+10004|Leave it to Psmith|P.G. Wodehouse|true|Student|1020|Alice Hue|Apr-28-2018|May-03-2018
+10005|Emma|Jane Austen|true|Student|1005|Neha Deshpande|Apr-20-2018|Apr-25-2018
 10006|Emma|Jane Austen|false|null|null|null|null|null
-10007|Murder on the Orient Express|Agatha Christie|false|null|null|null|null|null
-10008|Five Little Pigs|Agatha Christie|false|null|null|null|null|null
-10009|Death on the Nile|Agatha Christie|false|null|null|null|null|null
-10010|The ABC Murders|Agatha Christie|false|null|null|null|null|null
+10007|Murder on the Orient Express|Agatha Christie|true|Student|1020|Alice Hue|Apr-28-2018|May-03-2018
+10008|Five Little Pigs|Agatha Christie|true|Teacher|5010|Bill Ranier|Apr-28-2018|May-05-2018
+10009|Death on the Nile|Agatha Christie|true|Student|1005|Neha Deshpande|May-02-2018|May-09-2018
+10010|The ABC Murders|Agatha Christie|true|Student|1006|Jeff Smith|May-02-2018|May-09-2018
 10012|The War of the Worlds|H G Wells|false|null|null|null|null|null
 10013|The Time Machine|H G Wells|false|null|null|null|null|null
 10014|To Kill a Mocking Bird|Harper Lee|false|null|null|null|null|null
@@ -19,9 +19,9 @@
 10020|Of Mice and Men|John Steinbeck|false|null|null|null|null|null
 10021|The Scarlet Letter|Nathaniel Hawthorne|false|null|null|null|null|null
 10022|In Cold Blood|Truman Capote|false|null|null|null|null|null
-10023|Gone with the Wind|Margaret Mitchell|false|null|null|null|null|null
+10023|Gone with the Wind|Margaret Mitchell|true|Teacher|5005|Meg Delucia|May-02-2018|May-09-2018
 10024|Gone with the Wind|Margaret Mitchell|false|null|null|null|null|null
-10025|The Old Man and the Sea|Ernest Hemingway|false|null|null|null|null|null
+10025|The Old Man and the Sea|Ernest Hemingway|true|Student|1005|Neha Deshpande|May-02-2018|May-09-2018
 10026|The Color Purple|Alice Walker|false|null|null|null|null|null
 10027|The Color Purple|Alice Walker|false|null|null|null|null|null
 10028|Wuthering Heights|Emily Bronte|false|null|null|null|null|null
@@ -47,3 +47,4 @@
 10048|Winnie the Pooh|A A Milne|false|null|null|null|null|null
 10049|Winnie the Pooh|A A Milne|false|null|null|null|null|null
 10050|David Copperfield|Charles Dickens|false|null|null|null|null|null
+10052|David Copperfield|Charles Dickens|false|null|null|null|null|null
