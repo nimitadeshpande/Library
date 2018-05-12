@@ -6,23 +6,23 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-/** The aim of this code is to:
- * 1. Accept login from administrator - done
- * 2. Choose between 'borrow' and 'return' for 'student' or 'teacher' - done
+/** 
+ * The aim of this code is to:
+ * 1. Accept login from administrator
+ * 2. Choose between 'borrow' and 'return' for 'student' or 'teacher'
  * 3. Upon selecting any of these combinations, the outcome should be an entry for teacher and student id and book id respectively.
  * 4. After the login, the methods for borrow and return should run and the message 'Transaction successful' should be output, 
  * while showing the student/teacher's name, id, book they borrowed and the book id, date borrowed, and return date.
  * 
- * 
  */
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-//import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -30,7 +30,11 @@ import javafx.geometry.Pos;
 import javafx.print.PrinterJob;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
@@ -53,13 +57,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-//import javafx.scene.layout.StackPane;
-//import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
 public class Library extends Application {
-	
+
 	private TableView<Student> studentTable = new TableView<Student>();
 	private TableView<Teacher> teacherTable = new TableView<Teacher>();
 	private TableView<LibraryBook> bookTable = new TableView<LibraryBook>();
@@ -90,6 +92,18 @@ public class Library extends Application {
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	/**
+	 * The code below is the code for the login screen, as well as the code for the main screen 
+	 * that appears after the username and password have been correctly entered.
+	 * The 'Register' buttons allow the librarian to view library books in addition to students and teachers enrolled in the school.
+	 * The student and teacher buttons, when clicked, display a table with a list of students and teachers. 
+	 * New students and teachers may be added by entering a first and last name and clicking the 'Add' button.
+	 * To delete a student or teacher record, select a row of data in the table and click the 'Delete' button.
+	 * A pop-up box asking for confirmation to delete the record will appear. Select 'Delete' to permanently delete the data, or
+	 * 'Cancel' to keep the data.
+	 * The 'Add/Edit Book' button functions in a similar manner, except the librarian must enter the book title and the author name, 
+	 * instead of a first and last name.
+	 */
 	public void start(Stage primaryStage) throws FileNotFoundException {
 
 		final Parameters params = getParameters();
@@ -239,10 +253,10 @@ public class Library extends Application {
 					grid.add(checkedOutBooksBtn, 2, 3);
 
 					grid.add(exitBtn, 2, 8);
-					
-					editStudentButtonAction(editStudentBtn);
-					editTeacherButtonAction(editTeacherBtn);
-					editBookButtonAction(editBookBtn);
+
+					editStudentButtonAction(editStudentBtn, primaryStage);
+					editTeacherButtonAction(editTeacherBtn, primaryStage);
+					editBookButtonAction(editBookBtn, primaryStage);
 					returnBookButtonAction(returnBookBtn);
 					borrowedBookButtonAction(borrowBookBtn);
 					overdueBooksButtonAction(overDueBooksBtn, primaryStage);
@@ -263,7 +277,7 @@ public class Library extends Application {
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public void editStudentButtonAction(Button editStudentBtn) {
+	public void editStudentButtonAction(Button editStudentBtn, Stage primaryStage) {
 		editStudentBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@SuppressWarnings("unchecked")
 			public void handle(ActionEvent args) {
@@ -288,8 +302,7 @@ public class Library extends Application {
 				studentTable.setPrefHeight(300);
 				studentTable.setPrefWidth(500);
 
-				Callback<TableColumn<Student, String>, TableCell<Student, String>> cellFactory 
-					= new Callback<TableColumn<Student, String>, TableCell<Student, String>>() {
+				Callback<TableColumn<Student, String>, TableCell<Student, String>> cellFactory = new Callback<TableColumn<Student, String>, TableCell<Student, String>>() {
 					public TableCell call(TableColumn p) {
 						return new EditingCell();
 					}
@@ -311,6 +324,7 @@ public class Library extends Application {
 					public void handle(CellEditEvent<Student, String> t) {
 
 						if (t.getNewValue().equals(null) || t.getNewValue().trim().equals("")) {
+							System.out.println("Entered if for null firstName");
 							err.setText("Error: Empty First Name. Please Enter Valid Value.");
 							err.setVisible(true);
 						}
@@ -356,7 +370,7 @@ public class Library extends Application {
 
 				Button addButton = new Button("Add");
 				addButton.getStyleClass().addAll("buttonSmall");
-				Button exitButton = new Button("Cancel");
+				Button exitButton = new Button("Back");
 				exitButton.getStyleClass().addAll("buttonSmall");
 				Button deleteButton = new Button("Delete Selected Student");
 				deleteButton.getStyleClass().addAll("buttonXLarge");
@@ -381,20 +395,40 @@ public class Library extends Application {
 					boolean isDuplicate = false;
 
 					public void handle(ActionEvent e) {
+						
 						if ((firstNameField.getText() != null && firstNameField.getText().trim().length() > 0)
 								&& (lastNameField.getText() != null && lastNameField.getText().trim().length() > 0)) {
-
-							for (int i = 0; i < students.size(); i++) {
-								if (students.get(i).getFirstName().equals(firstNameField.getText())
-										&& students.get(i).getLastName().equals(lastNameField.getText())) {
-									isDuplicate = true;
-								}
-							}
+							
+							isDuplicate = libraryUtils.isDuplicate(firstNameField.getText(), lastNameField.getText(), "Student"
+									, students, teachers);
 
 							if (isDuplicate) {
-								err.setText("Error: Duplicate Student Entries not Allowed.");
-								err.setVisible(true);
-								isDuplicate = false;
+								Alert alert = new Alert(AlertType.CONFIRMATION);
+								alert.setTitle("Duplicate Entry");
+								alert.setHeaderText("Student(s) with the same first and last name exist(s). Are you sure you want to add this entry?");
+
+								ButtonType buttonTypeDelete = new ButtonType("Add");
+								ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
+								alert.getButtonTypes().setAll(buttonTypeDelete, buttonTypeCancel);
+
+								Optional<ButtonType> result = alert.showAndWait();
+
+								boolean cancelled = false;
+								System.out.println(result.get().getText());
+								if (result.get().getText().equals("Add")){
+									System.out.println("Adding...");
+									studentCount += 1;
+									students.add(new Student(Integer.toString(studentCount), lastNameField.getText(),
+											firstNameField.getText()));
+									lastNameField.clear();
+									firstNameField.clear();
+								}else {
+									lastNameField.clear();
+									firstNameField.clear();
+								    cancelled = true;// ... user chose CANCEL or closed the dialog
+								}
+								
 							}
 
 							else {
@@ -403,7 +437,6 @@ public class Library extends Application {
 										firstNameField.getText()));
 								lastNameField.clear();
 								firstNameField.clear();
-								err.setVisible(false);
 							}
 
 						} else {
@@ -418,21 +451,52 @@ public class Library extends Application {
 
 					public void handle(ActionEvent e) {
 						Student delStudent = (Student) studentTable.getSelectionModel().getSelectedItem();
-						studentTable.getItems().remove(delStudent);
+					
+						Alert alert = new Alert(AlertType.CONFIRMATION);
+						alert.setTitle("Confirm Delete");
+						alert.setHeaderText("Are you sure you want to delete this student?");
 
-						for (int i = 0; i < students.size(); i++) {
-							if (students.get(i).getId().equals(delStudent.getId())) {
-								students.remove(i);
+						ButtonType buttonTypeDelete = new ButtonType("Delete");
+						ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
+						alert.getButtonTypes().setAll(buttonTypeDelete, buttonTypeCancel);
+
+						Optional<ButtonType> result = alert.showAndWait();
+
+						boolean hasCheckedOut = false;
+						boolean cancelled = false;
+						System.out.println(result.get().getText());
+						if (result.get().getText().equals("Delete")){
+							System.out.println("Deleting...");
+							for (int i = 0; i < books.size(); i++) {
+								try {
+									if (books.get(i).getCheckedOutId().equals(delStudent.getId())) {
+										hasCheckedOut = true;
+										Alert alert1 = new Alert(AlertType.INFORMATION);
+										alert1.setTitle("Delete Student Failed");
+										alert1.setHeaderText(null);
+										alert1.setContentText("Error: The student with id \n" + delStudent.getId()
+										+ " has a book checked out.\n Please return the book \n"
+										+ "before deleting this student.\n");
+										alert1.showAndWait();
+										break;
+									}
+								}
+								catch(NullPointerException ne) {
+									System.out.println("next");
+								}
+								
 							}
+						}else {
+						    cancelled = true;// ... user chose CANCEL or closed the dialog
 						}
-
-						for (int i = 0; i < books.size(); i++) {
-							if (books.get(i).getCheckedOutId().equals(delStudent.getId())) {
-								books.get(i).checkedOutBy = null;
-								books.get(i).checkedOutDate = null;
-								books.get(i).checkedOutId = null;
-								books.get(i).returnDate = null;
-								books.get(i).borrowerName = null;
+						
+						if (!hasCheckedOut && !cancelled) {
+							studentTable.getItems().remove(delStudent);
+							for (int i = 0; i < students.size(); i++) {
+								if (students.get(i).getId().equals(delStudent.getId())) {
+									students.remove(i);
+								}
 							}
 						}
 					}
@@ -456,7 +520,7 @@ public class Library extends Application {
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public void editTeacherButtonAction(Button editTeacherBtn) {
+	public void editTeacherButtonAction(Button editTeacherBtn, Stage primaryStage) {
 		editTeacherBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@SuppressWarnings("unchecked")
 			@Override
@@ -482,8 +546,7 @@ public class Library extends Application {
 				teacherTable.setPrefHeight(300);
 				teacherTable.setPrefWidth(500);
 
-				Callback<TableColumn<Teacher, String>, TableCell<Teacher, String>> cellFactory 
-					= new Callback<TableColumn<Teacher, String>, TableCell<Teacher, String>>() {
+				Callback<TableColumn<Teacher, String>, TableCell<Teacher, String>> cellFactory = new Callback<TableColumn<Teacher, String>, TableCell<Teacher, String>>() {
 					public TableCell call(TableColumn p) {
 						return new EditingCell();
 					}
@@ -529,10 +592,10 @@ public class Library extends Application {
 
 				Button addButton = new Button("Add");
 				addButton.getStyleClass().addAll("buttonSmall");
-				Button exitButton = new Button("Cancel");
+				Button exitButton = new Button("Back");
 				exitButton.getStyleClass().addAll("buttonSmall");
-				Button deleteButton = new Button("Delete");
-				deleteButton.getStyleClass().addAll("buttonSmall");
+				Button deleteButton = new Button("Delete Selected Teacher");
+				deleteButton.getStyleClass().addAll("buttonXLarge");
 
 				Label err = new Label();
 				err.setVisible(false);
@@ -556,20 +619,38 @@ public class Library extends Application {
 					public void handle(ActionEvent e) {
 						if ((firstNameField.getText() != null && firstNameField.getText().trim().length() > 0)
 								&& (lastNameField.getText() != null && lastNameField.getText().trim().length() > 0)) {
-
-							for (int i = 0; i < teachers.size(); i++) {
-								if (teachers.get(i).getFirstName().equals(firstNameField.getText())
-										&& teachers.get(i).getLastName().equals(lastNameField.getText())) {
-									isDuplicate = true;
-								}
-							}
+							
+							isDuplicate = libraryUtils.isDuplicate(firstNameField.getText(), lastNameField.getText(), "Teacher"
+									, students, teachers);
 
 							if (isDuplicate) {
-								err.setText("Error: Duplicate Teacher Entries not Allowed.");
-								err.setVisible(true);
-								isDuplicate = false;
-							}
+								Alert alert = new Alert(AlertType.CONFIRMATION);
+								alert.setTitle("Duplicate Entry");
+								alert.setHeaderText("Teacher(s) with the same first and last name exist(s). Are you sure you want to add this entry?");
 
+								ButtonType buttonTypeDelete = new ButtonType("Add");
+								ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
+								alert.getButtonTypes().setAll(buttonTypeDelete, buttonTypeCancel);
+
+								Optional<ButtonType> result = alert.showAndWait();
+
+								boolean cancelled = false;
+								System.out.println(result.get().getText());
+								if (result.get().getText().equals("Add")){
+									System.out.println("Adding...");
+									teacherCount += 1;
+									teachers.add(new Teacher(Integer.toString(teacherCount), lastNameField.getText(),
+											firstNameField.getText()));
+									lastNameField.clear();
+									firstNameField.clear();
+								}else {
+									lastNameField.clear();
+									firstNameField.clear();
+								    cancelled = true;// ... user chose CANCEL or closed the dialog
+								}
+								
+							}
 							else {
 								teacherCount += 1;
 								teachers.add(new Teacher(Integer.toString(teacherCount), lastNameField.getText(),
@@ -590,43 +671,63 @@ public class Library extends Application {
 				deleteButton.setOnAction(new EventHandler<ActionEvent>() {
 
 					public void handle(ActionEvent e) {
-						Label newLine = new Label("");
-						Label delete = new Label("Enter ID of the record you wish to delete:\t");
-						TextField deleteId = new TextField();
-						deleteId.setPromptText("ID to be deleted");
-						HBox hb = new HBox();
-						hb.setSpacing(3);
-						Button deleteBorrower = new Button("Delete Teacher");
-						deleteBorrower.getStyleClass().addAll("buttonLarge");
-						hb.getChildren().addAll(delete, deleteId, deleteBorrower);
-						vbox.getChildren().addAll(newLine, hb);
+						Teacher delTeacher = (Teacher) teacherTable.getSelectionModel().getSelectedItem();
 
-						deleteBorrower.setOnAction(new EventHandler<ActionEvent>() {
+						Alert alert = new Alert(AlertType.CONFIRMATION);
+						alert.setTitle("Confirm Delete");
+						alert.setHeaderText("Are you sure you want to delete this teacher?");
 
-							public void handle(ActionEvent e) {
-								for (int i = 0; i < teachers.size(); i++) {
-									if (teachers.get(i).getId().equals(deleteId.getText())) {
-										teachers.remove(i);
+						ButtonType buttonTypeDelete = new ButtonType("Delete");
+						ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
+						alert.getButtonTypes().setAll(buttonTypeDelete, buttonTypeCancel);
+
+						Optional<ButtonType> result = alert.showAndWait();
+
+						boolean hasCheckedOut = false;
+						boolean cancelled = false;
+						System.out.println(result.get().getText());
+						if (result.get().getText().equals("Delete")){
+							for (int i = 0; i < books.size(); i++) {
+								try {
+									if (books.get(i).getCheckedOutId().equals(delTeacher.getId())) {
+										hasCheckedOut = true;
+										Alert alert1 = new Alert(AlertType.INFORMATION);
+										alert1.setTitle("Delete Teacher Failed");
+										alert1.setHeaderText(null);
+										alert1.setContentText("Error: The teacher with id \n" + delTeacher.getId()
+										+ " has a book checked out.\n Please return the book \n"
+										+ "before deleting this teacher.\n");
+										alert1.showAndWait();
+										break;
 									}
 								}
-
-								for (int i = 0; i < books.size(); i++) {
-									if (books.get(i).getCheckedOutId().equals(deleteId.getText())) {
-										books.get(i).checkedOutBy = null;
-										books.get(i).checkedOutDate = null;
-										books.get(i).checkedOutId = null;
-										books.get(i).returnDate = null;
-										books.get(i).borrowerName = null;
-									}
+								catch(NullPointerException ne) {
+									System.out.println("Deleting next");
+								}								
+							}
+						}else {
+						    cancelled = true;// ... user chose CANCEL or closed the dialog
+						}
+						
+						if (!hasCheckedOut && !cancelled) {
+							teacherTable.getItems().remove(delTeacher);
+							for (int i = 0; i < teachers.size(); i++) {
+								if (teachers.get(i).getId().equals(delTeacher.getId())) {
+									teachers.remove(i);
 								}
 							}
-						});
+						}
 					}
+		
 
 				});
 
-				hb.getChildren().addAll(firstNameField, lastNameField, addButton, deleteButton, exitButton);
-				vbox.getChildren().addAll(label, teacherTable, err, hb);
+				hb.getChildren().addAll(firstNameField, lastNameField, addButton);
+				HBox hb1 = new HBox();
+				hb1.getChildren().addAll(deleteButton, exitButton);
+				hb1.setSpacing(3);
+				vbox.getChildren().addAll(label, teacherTable, err, hb, hb1);
 				editTeachGrid.getChildren().addAll(vbox);
 				((Group) scene.getRoot()).getChildren().addAll(editTeachGrid);
 
@@ -638,7 +739,7 @@ public class Library extends Application {
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public void editBookButtonAction(Button editBookBtn) {
+	public void editBookButtonAction(Button editBookBtn, Stage primaryStage) {
 		editBookBtn.setOnAction(new EventHandler<ActionEvent>() {
 
 			@SuppressWarnings("unchecked")
@@ -698,47 +799,59 @@ public class Library extends Application {
 				Label deleteBookLabel = new Label("Delete Book");
 				Button addButton = new Button("Add");
 				addButton.getStyleClass().addAll("buttonSmall");
-				Button cancelButton = new Button("Cancel");
+				Button cancelButton = new Button("Back");
 				cancelButton.getStyleClass().addAll("buttonSmall");
-				Label newLine = new Label("");
-				TextField deleteId = new TextField();
-				deleteId.setPrefWidth(205);
-				deleteId.setPromptText("Book ID");
-				HBox hb = new HBox();
-				Button deleteBook = new Button("Delete");
-				deleteBook.getStyleClass().addAll("buttonSmall");
+				Button deleteButton = new Button("Delete Selected Book");
+				deleteButton.getStyleClass().addAll("buttonXLarge");
 				HBox hb1 = new HBox();
-				hb1.getChildren().addAll(deleteId, deleteBook, cancelButton);
+				hb1.getChildren().addAll(deleteButton, cancelButton);
 				VBox vb = new VBox();
-				vb.getChildren().addAll(newLine, hb);
+				vb.getChildren().addAll(hb1);
 
-				deleteBook.setOnAction(new EventHandler<ActionEvent>() {
-
+				deleteButton.setOnAction(new EventHandler<ActionEvent>() {
 					public void handle(ActionEvent e) {
+
+						LibraryBook delBook = (LibraryBook) bookTable.getSelectionModel().getSelectedItem();
+						String deleteId = delBook.getBookId();
+
 						ArrayList<String> temp;
-						for (int i = 0; i < teachers.size(); i++) {
-							temp = teachers.get(i).getBookIds();
-							if (temp.contains(deleteId.getText())) {
-								teachers.get(i).getBookIds().remove(deleteId.getText());
-							}
-						}
+						
+						Alert alert = new Alert(AlertType.CONFIRMATION);
+						alert.setTitle("Confirm Delete");
+						alert.setHeaderText("Are you sure you want to delete this book?");
 
-						for (int i = 0; i < students.size(); i++) {
-							temp = students.get(i).getBookIds();
-							if (temp.contains(deleteId.getText())) {
-								students.get(i).getBookIds().remove(deleteId.getText());
-							}
-						}
+						ButtonType buttonTypeDelete = new ButtonType("Delete");
+						ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 
-						for (int i = 0; i < books.size(); i++) {
-							if (books.get(i).getBookId().equals(deleteId.getText())) {
-								books.remove(i);
+						alert.getButtonTypes().setAll(buttonTypeDelete, buttonTypeCancel);
+
+						Optional<ButtonType> result = alert.showAndWait();
+
+			
+						if (result.get().getText().equals("Delete")){
+							for (int i = 0; i < teachers.size(); i++) {
+								temp = teachers.get(i).getBookIds();
+								if (temp.contains(deleteId)) {
+									teachers.get(i).getBookIds().remove(deleteId);
+								}
+							}
+
+							for (int i = 0; i < students.size(); i++) {
+								temp = students.get(i).getBookIds();
+								if (temp.contains(deleteId)) {
+									students.get(i).getBookIds().remove(deleteId);
+								}
+							}
+
+							for (int i = 0; i < books.size(); i++) {
+								bookTable.getItems().remove(delBook);
+								if (books.get(i).getBookId().equals(deleteId)) {
+									books.remove(i);
+								}
 							}
 						}
-						deleteId.clear();
 					}
 				});
-
 				cancelButton.setOnAction(new EventHandler<ActionEvent>() {
 					@Override
 					public void handle(ActionEvent event) {
@@ -878,7 +991,7 @@ public class Library extends Application {
 				label.setFont(new Font("Arial", 20));
 				availableBooks.setPrefHeight(300);
 				availableBooks.setPrefWidth(500);
-
+				
 				TableColumn<LibraryBook, String> bookIdCol = new TableColumn<LibraryBook, String>("Book ID");
 				bookIdCol.setPrefWidth(50);
 				TableColumn<LibraryBook, String> titleCol = new TableColumn<LibraryBook, String>("Title");
@@ -896,6 +1009,7 @@ public class Library extends Application {
 
 				Label bookIdLabel = new Label("Book ID:        ");
 				TextField bookIdField = new TextField();
+				
 				Label borrowerIdLabel = new Label("Borrower ID: ");
 				TextField borrowerIdField = new TextField();
 
@@ -911,10 +1025,6 @@ public class Library extends Application {
 				Button exitButton = new Button("Cancel");
 				exitButton.getStyleClass().addAll("buttonSmall");
 
-				HBox hbox1 = new HBox();
-				hbox1.setSpacing(3);
-				hbox1.getChildren().addAll(bookIdLabel, bookIdField);
-
 				HBox hbox2 = new HBox();
 				hbox2.setSpacing(3);
 				hbox2.getChildren().addAll(borrowerIdLabel, borrowerIdField);
@@ -927,19 +1037,20 @@ public class Library extends Application {
 				hbox4.setSpacing(3);
 				hbox4.getChildren().addAll(isStudent, isTeacher);
 
-				Label msg = new Label("Book Successfully Checked Out");
+				Label msg = new Label("");
+				msg.setStyle("-fx-background-color: slateblue; -fx-text-fill: white;");
 				msg.setVisible(false);
 
 				VBox vbox = new VBox();
 				vbox.setSpacing(20);
 				vbox.setAlignment(Pos.CENTER);
-				vbox.getChildren().addAll(label, availableBooks, hbox1, hbox2, hbox4, hbox3, msg);
+				vbox.getChildren().addAll(label, availableBooks, hbox2, hbox4, hbox3, msg); //hbox1
 				resultsGrid.getChildren().addAll(vbox);
 				((Group) scene.getRoot()).getChildren().addAll(resultsGrid);
 
 				stage.setScene(scene);
 				stage.show();
-
+	
 				exitButton.setOnAction(new EventHandler<ActionEvent>() {
 
 					public void handle(ActionEvent e) {
@@ -949,19 +1060,31 @@ public class Library extends Application {
 
 				submitBtn.setOnAction(new EventHandler<ActionEvent>() {
 
-					public void handle(ActionEvent e) {
-
+					public void handle(ActionEvent e) {	
+						LibraryBook libBook = (LibraryBook) availableBooks.getSelectionModel().getSelectedItem();
+						if(libBook == null) {
+							Alert alert1 = new Alert(AlertType.INFORMATION);
+							alert1.setTitle("Borrow Book Failed");
+							alert1.setHeaderText(null);
+							alert1.setContentText("Error: Please select a row in \n" +
+							" the table to borrow the book. \n");
+							alert1.showAndWait();
+						}
+						else {
+							bookIdField.setText(libBook.getBookId());
+						}
 						if (isStudent.isSelected()) {
 							if (libraryUtils.isValidStudent(borrowerIdField.getText(), students))
-								msg.setText(libraryUtils.bookBorrow(bookIdField, borrowerIdField, "Student", books, students, teachers));
+								msg.setText(libraryUtils.bookBorrow(bookIdField, borrowerIdField, "Student", books,
+										students, teachers));
 							else
 								msg.setText("Not a Valid Student ID");
 						}
 
 						else if (isTeacher.isSelected()) {
-							// msg.setText("");
 							if (libraryUtils.isValidTeacher(borrowerIdField.getText(), teachers))
-								msg.setText(libraryUtils.bookBorrow(bookIdField, borrowerIdField, "Teacher", books, students, teachers));
+								msg.setText(libraryUtils.bookBorrow(bookIdField, borrowerIdField, "Teacher", books,
+										students, teachers));
 							else {
 								msg.setText("Not a Valid Teacher ID");
 							}
@@ -1038,13 +1161,15 @@ public class Library extends Application {
 							&& (book.getReturnDate().getDayOfYear() > odStart.getDayOfYear())
 							&& (book.getReturnDate().getDayOfYear() < odEnd.getDayOfYear())) {
 
-						fine = LibraryUtils.calcFine(book.getCheckedOutDate(), book.getReturnDate(), Student.finePerDay);
+						fine = LibraryUtils.calcFine(book.getCheckedOutDate(), book.getReturnDate(),
+								Student.finePerDay);
 
 					} else if (book.isCheckedOut && book.getCheckedOutBy().equals("Teacher")
 							&& (book.getReturnDate().getDayOfYear() > odStart.getDayOfYear())
 							&& (book.getReturnDate().getDayOfYear() < odEnd.getDayOfYear())) {
 
-						fine = LibraryUtils.calcFine(book.getCheckedOutDate(), book.getReturnDate(), Teacher.finePerDay);
+						fine = LibraryUtils.calcFine(book.getCheckedOutDate(), book.getReturnDate(),
+								Teacher.finePerDay);
 
 					}
 					if (!(book.getReturnDate() == null) && !fine.equals("$0.00")) {
@@ -1150,11 +1275,13 @@ public class Library extends Application {
 				borrowerIdCol.setPrefWidth(50);
 				borrowerIdCol.setCellValueFactory(new PropertyValueFactory<BorrowedBook, String>("borrowerId"));
 
-				TableColumn<BorrowedBook, String> borrowerNameCol = new TableColumn<BorrowedBook, String>("Borrower Name");
+				TableColumn<BorrowedBook, String> borrowerNameCol = new TableColumn<BorrowedBook, String>(
+						"Borrower Name");
 				borrowerNameCol.setPrefWidth(100);
 				borrowerNameCol.setCellValueFactory(new PropertyValueFactory<BorrowedBook, String>("borrowerName"));
 
-				TableColumn<BorrowedBook, String> returnDateCol = new TableColumn<BorrowedBook, String>("Checkout Date");
+				TableColumn<BorrowedBook, String> returnDateCol = new TableColumn<BorrowedBook, String>(
+						"Checkout Date");
 				returnDateCol.setPrefWidth(75);
 				returnDateCol.setCellValueFactory(new PropertyValueFactory<BorrowedBook, String>("borrowDate"));
 
@@ -1176,6 +1303,7 @@ public class Library extends Application {
 					if (!(books.get(i).getReturnDate() == null)) {
 
 						leadingDays = (books.get(i).getReturnDate().getDayOfYear() - LocalDate.now().getDayOfYear());
+						System.out.println("Leading days: " + leadingDays);
 						if (leadingDays == 0)
 							ld = new SimpleStringProperty("Due Today");
 						else if (leadingDays == -1)
@@ -1186,6 +1314,7 @@ public class Library extends Application {
 							ld = new SimpleStringProperty(Math.abs(leadingDays) + " Day");
 						else
 							ld = new SimpleStringProperty(Math.abs(leadingDays) + " Days");
+						System.out.println("Leading days: " + ld);
 						if (books.get(i).isCheckedOut) {
 							bb = new BorrowedBook(new SimpleStringProperty(books.get(i).getBookId()),
 									new SimpleStringProperty(books.get(i).getBookName()),

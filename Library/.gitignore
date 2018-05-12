@@ -1,5 +1,6 @@
 .classpath
 .project
+/build
 /dist/application
 /dist/application/*.class
 build.fxbuild

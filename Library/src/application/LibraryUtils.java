@@ -107,9 +107,10 @@ public class LibraryUtils {
 									book.returnDate = LocalDate.now().plusDays(Student.dayLimit);
 									student.borrowedDates.add(index, LocalDate.now());
 									student.returnDates.add(index, LocalDate.now().plusDays(Student.dayLimit));
-									msg = (bookIdField.getText() + " Checked Out to: " + borrowerIdField.getText());
+									msg = ( "Transaction Successful: Book Checked Out \n" + bookIdField.getText() + ": " + book.getBookName()  + "\n Checked Out to: \n" 
+										      + borrowerIdField.getText() + ": " + student.getFirstName() + " " + student.getLastName());
 								} else {
-									msg = "Book limit reached";
+									msg = "Book limit reached. Please return books before borrowing more books.";
 								}
 							}
 						}
@@ -130,9 +131,10 @@ public class LibraryUtils {
 									book.returnDate = LocalDate.now().plusDays(Teacher.dayLimit);
 									teacher.borrowedDates.add(index, LocalDate.now());
 									teacher.returnDates.add(index, LocalDate.now().plusDays(Teacher.dayLimit));
-									msg = (bookIdField.getText() + " Checked Out to: " + borrowerIdField.getText());
+									msg = ( "Transaction Successful: Book Checked Out \n" + bookIdField.getText() + ": " + book.getBookName()  + "\n Checked Out to: \n" 
+									      + borrowerIdField.getText() + ": " + teacher.getFirstName() + " " + teacher.getLastName());
 								} else {
-									msg = "Book limit reached";
+									msg = "Book limit reached. Please return books before borrowing more books.";
 								}
 							}
 						}
@@ -155,16 +157,23 @@ public class LibraryUtils {
 			if (bookReturned)
 				break;
 			if (book.bookId.get().equals(bookIdField.getText())) {
+				System.out.println("Book to be deleted: " + bookIdField.getText());
 				if (book.isCheckedOut) {
+					System.out.println("Book to be checked out ");
 					for (Student student : students) {
 						if (bookReturned)
 							break;
 						temp = new ArrayList<>();
-						if (student.bookIds.size() <= Student.bookLimit && student.bookIds.size() > 0) {
+						//if (student.bookIds.size() <= Student.bookLimit && student.bookIds.size() > 0) {
 							temp.addAll(student.bookIds);
+							System.out.println("Temp array has:" + temp.toString());
 							for (int i = 0; i < temp.size(); i++) {
 								if (temp.get(i).get().equals(bookIdField.getText())) {
+									System.out.println("Remove: " + temp.get(i).get());
 									student.bookIds.remove(i);
+								}
+								else {
+									continue;
 								}
 								book.isCheckedOut = false;
 								book.checkedOutBy = null;
@@ -176,18 +185,21 @@ public class LibraryUtils {
 								bookReturned = true;
 								break;
 							}
-						}
+						//}
 					}
 
 					for (Teacher teacher : teachers) {
 						if (bookReturned)
 							break;
 						temp = new ArrayList<>();
-						if (teacher.bookIds.size() <= Teacher.bookLimit && teacher.bookIds.size() > 0) {
+						//if (teacher.bookIds.size() <= Teacher.bookLimit && teacher.bookIds.size() > 0) {
 							temp.addAll(teacher.bookIds);
 							for (int i = 0; i < temp.size(); i++) {
 								if (temp.get(i).get().equals(bookIdField.getText())) {
 									teacher.bookIds.remove(i);
+								}
+								else {
+									continue;
 								}
 								book.isCheckedOut = false;
 								book.checkedOutBy = null;
@@ -199,7 +211,7 @@ public class LibraryUtils {
 								bookReturned = true;
 								break;
 							}
-						}
+						//}
 					}
 				} else {
 					message = "Book " + bookIdField.getText() + " is not Checkedout.";
@@ -267,51 +279,6 @@ public class LibraryUtils {
 		}
 
 		return isDuplicate;
-	}
-
-	public boolean fNameDuplicate(String firstName, String borrowerType, 
-			ObservableList<Student> students, ObservableList<Teacher> teachers) {
-		boolean fNameDuplicate = false;
-
-		if (borrowerType.equals("Student")) {
-			for (int i = 0; i < students.size(); i++) {
-				if (students.get(i).getFirstName().equals(firstName)) {
-					fNameDuplicate = true;
-				}
-			}
-		}
-
-		else if (borrowerType.equals("Teacher")) {
-			for (int i = 0; i < teachers.size(); i++) {
-				if (teachers.get(i).getFirstName().equals(firstName)) {
-					fNameDuplicate = true;
-				}
-			}
-		}
-
-		return fNameDuplicate;
-	}
-
-	public boolean lNameDuplicate(String lastName, String borrowerType, 
-			ObservableList<Student> students, ObservableList<Teacher> teachers) {
-		boolean lNameDuplicate = false;
-
-		if (borrowerType.equals(lastName)) {
-			for (int i = 0; i < students.size(); i++) {
-				if (students.get(i).getFirstName().equals(lastName)) {
-					lNameDuplicate = true;
-				}
-			}
-		}
-
-		else if (borrowerType.equals("Teacher")) {
-			for (int i = 0; i < teachers.size(); i++) {
-				if (teachers.get(i).getFirstName().equals(lastName)) {
-					lNameDuplicate = true;
-				}
-			}
-		}
-		return lNameDuplicate;
 	}
 
 }
